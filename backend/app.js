@@ -1,12 +1,18 @@
 const express = require('express')
 const axios = require('axios')
-const app = express()
 const cors = require('cors')
+
+const streamRouter = require('./Routes/stream.routes')
+
+const app = express()
 
 app.use(cors())
 app.use(express.json())
 
 const PORT = process.env.PORT || 3000
+
+// Routes
+app.use('/api',streamRouter)
 
 app.get('/', (req,res) =>{
     res.send("This is the video streaming server")
