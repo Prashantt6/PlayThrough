@@ -5,7 +5,7 @@ const path = require('path')
 
 const generateHLS = async (videoURL) =>{
     const id = Date.now().toString()
-    const outputDir = path.join(__dirname, ".. ", "hls", id)
+    const outputDir = path.join(__dirname, "..", "hls", id)
 
     fs.mkdirSync(outputDir, {recursive: true})
 
