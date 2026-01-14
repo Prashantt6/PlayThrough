@@ -57,7 +57,7 @@ const checkStreamableUrl = async (videoURL) =>{
 }
 const getVideoStream = async (videoURL, rangeHeader) =>{
     if(!rangeHeader){
-        throw new Error ("Range header is required for streaming");
+        throw new Error("Range header is required for streaming");
     }
     const response = await axios.get(videoURL, {
         headers: {
