@@ -55,7 +55,23 @@ const checkStreamableUrl = async (videoURL) =>{
         message: "URL support  HTTP range streaming"
     }
 }
+const getVideoStream = async (videoURL, rangeHeader) =>{
+    if(!rangeHeader){
+        throw new Error ("Range header is required for streaming");
+    }
+    const response = await axios.get(videoURL, {
+        headers: {
+            Range: rangeHeader,
+        },
+        responseType: "stream",
+        timeout: 10000,
+        maxRedirects: 5
+    });
+    return {
+        stream: response.data,
+        headers: response.headers,
+        status: response.status
+    }
+}
 
-
-
-module.exports = {checkStreamableUrl}
+module.exports = {checkStreamableUrl, getVideoStream}
