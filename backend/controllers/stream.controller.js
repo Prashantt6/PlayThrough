@@ -52,7 +52,9 @@ const streamVideo = async(req, res) =>{
             "Content-Range": headers["content-range"],
             "Accept-Ranges": "bytes",
             "Content-Length": headers["content-length"],
-            "Content-Type": headers["content-type"] || "video/mp4"
+            "Content-Type":  "video/mp4",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Range, Accept-Ranges, Content-Length"
         })
         stream.pipe(res);
     }catch(error){
