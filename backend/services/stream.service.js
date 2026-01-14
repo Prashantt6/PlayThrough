@@ -37,7 +37,7 @@ const checkStreamableUrl = async (videoURL) =>{
     if(acceptRanges !== "bytes"){
         try{
             const  rangeTest = await axios.get(videoURL, {
-                headers: {Range: "byte=0-1"},
+                headers: {Range: "bytes=0-1"},
                 responseType: "stream",
                 timeout: 5000
             });
