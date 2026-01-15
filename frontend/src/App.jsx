@@ -17,7 +17,7 @@ function App() {
       
       const data = await startHLS(url);
       setPlaylistURL(data.playlistUrl)
-      // console.log("APP:",setPlaylistURL)
+      setStreamId(data.streamId)
     }catch(err){
       alert("Failed to start streaming")
     }finally{
@@ -25,19 +25,22 @@ function App() {
     }
 
   }
-  useEffect(() =>{
-    const cleanup = () =>{
-      if(streamId){
-        stopHLS(streamId)
-      }
-    }
-    window.addEventListener("beforeunload", cleanup);
+useEffect(() => {
+  if (!streamId) return;
 
-    return () =>{
-      cleanup()
-      window.removeEventListener("beforeunload",cleanup)
-    }
-  },[streamId])
+    const interval = setInterval(() => {
+      fetch(`http://localhost:3000/api/hls/${streamId}/ping`, {
+        method: "POST",
+        keepalive: true
+      }).catch(() => {});
+    }, 15000); // 15 seconds
+
+    return () => clearInterval(interval);
+  }, [streamId]);
+
+
+
+
 
   return (
     <div className="container">
