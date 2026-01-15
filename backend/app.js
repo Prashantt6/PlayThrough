@@ -13,6 +13,15 @@ app.use(express.json())
 
 const PORT = process.env.PORT || 3000
 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
+  })
+);  
+
 // Routes
 app.use('/api',streamRouter)
 app.use('/api', hlsRouter)
