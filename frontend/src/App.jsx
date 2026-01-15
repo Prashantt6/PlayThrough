@@ -48,9 +48,10 @@ useEffect(() => {
     <div className="title">PlayThrough</div>
     <StreamForm onStart={handleStart} />
     {loading && <div className="status">Preparing to stream....</div>}
+    <VideoPlayer playlistURL={playlistURL} />
   </div>
 
-  <VideoPlayer playlistURL={playlistURL} />
+
 </div>
 
   )
