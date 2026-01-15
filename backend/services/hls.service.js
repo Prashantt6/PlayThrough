@@ -14,35 +14,43 @@ const generateHLS = async (videoURL) => {
   const playlistPath = path.join(outputDir, "index.m3u8");
   const firstSegmentPath = path.join(outputDir, "index0.ts");
 
-  const ffmpegArgs = [
-    // help ffmpeg analyze partial / remote streams
-    "-analyzeduration", "20000000",
-    "-probesize", "20000000",
+const ffmpegArgs = [
+  "-y",
 
-    // input
-    "-i", videoURL,
+  // allow progressive download
+  "-re",
 
-    // map first video + audio stream
-    "-map", "0:v:0",
-    "-map", "0:a:0",
+  // better timestamp handling
+  "-fflags", "+genpts",
+  "-flags", "low_delay",
 
-    // codecs
-    "-c:v", "libx264",
-    "-c:a", "aac",
+  // input
+  "-i", videoURL,
 
-    // encoding speed / quality
-    "-preset", "veryfast",
-    "-crf", "23",
+  // video re-encode (MANDATORY)
+  "-map", "0:v:0",
+  "-c:v", "libx264",
+  "-profile:v", "main",
+  "-level", "4.0",
+  "-pix_fmt", "yuv420p",
+  "-preset", "veryfast",
+  "-crf", "23",
 
-    // HLS config
-    "-hls_time", "6",
-    "-hls_list_size", "0",
-    "-hls_flags", "independent_segments",
+  // audio re-encode (MANDATORY)
+  "-map", "0:a:0",
+  "-c:a", "aac",
+  "-ac", "2",
+  "-b:a", "128k",
 
-    // output
-    "-f", "hls",
-    playlistPath
-  ];
+  // HLS
+  "-hls_time", "6",
+  "-hls_list_size", "0",
+  "-hls_flags", "independent_segments",
+
+  "-f", "hls",
+  playlistPath
+];
+
 
   const ffmpeg = spawn("ffmpeg", ffmpegArgs, {
     stdio: ["ignore", "ignore", "pipe"],
@@ -87,7 +95,7 @@ const generateHLS = async (videoURL) => {
 
   return {
     id,
-    playlistUrl: `/hls/${id}/index.m3u8`,
+    playlistUrl: `http://localhost:3000/hls/${id}/index.m3u8`,
   };
 };
 

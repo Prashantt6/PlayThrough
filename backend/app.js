@@ -25,16 +25,20 @@ app.use(
 // Routes
 app.use('/api',streamRouter)
 app.use('/api', hlsRouter)
-app.use("/hls", (req, res, next) => {
-  if (req.url.endsWith(".m3u8")) {
-    res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+
+app.use("/hls", express.static("hls", {
+  setHeaders(res, path) {
+    if (path.endsWith(".m3u8")) {
+      res.set("Content-Type", "application/vnd.apple.mpegurl");
+    }
+    if (path.endsWith(".ts")) {
+      res.set("Content-Type", "video/mp2t");
+    }
+    res.set("Access-Control-Allow-Origin", "*");
   }
-  if (req.url.endsWith(".ts")) {
-    res.setHeader("Content-Type", "video/mp2t");
-  }
-  next();
-});
-app.use('/hls',express.static(path.join(__dirname, "hls")))
+}));
+
+
 
 app.get('/', (req,res) =>{
     res.send("This is the video streaming server")

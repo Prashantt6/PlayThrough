@@ -17,7 +17,7 @@ router.post(
   "/hls/:id/stop",
   express.text({ type: "*/*" }),
   (req, res) => {
-    console.log("🔥 STOP HIT:", req.params.id, "time:", Date.now());
+    console.log(" STOP HIT:", req.params.id, "time:", Date.now());
     stopHLS(req.params.id);
     res.status(200).end();
   }
