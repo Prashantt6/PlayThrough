@@ -13,3 +13,11 @@ export const startHLS = async (videoUrl) => {
 
   return response.json();
 };
+
+export const stopHLS = async(id) =>{
+  if(!id) return 
+
+  await fetch(`http://localhost:3000/api/hls/${id}`,{
+    method: "DELETE"
+  })
+}

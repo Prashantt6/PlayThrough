@@ -1,8 +1,8 @@
 import { useState } from "react";
 import StreamForm from "./components/StreamForm";
 import VideoPlayer from "./components/VideoPlayer";
-import { startHLS } from "./services/api";
-
+import { startHLS, stopHLS } from "./services/api";
+import { useEffect } from "react";
 
 function App() {
   const [playlistURL, setPlaylistURL] = useState(null)
@@ -38,5 +38,18 @@ function App() {
     </div>
   )
 }
+useEffect(() =>{
+  const cleanup = () =>{
+    if(streamId){
+      stopHLS(streamId)
+    }
+  }
+  window.addEventListener("beforeunload", cleanup);
+
+  return () =>{
+    cleanup()
+    window.removeEventListener("beforeunload",cleanup)
+  }
+},[streamId])
 
 export default App;
