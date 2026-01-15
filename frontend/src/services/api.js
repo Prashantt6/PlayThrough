@@ -11,3 +11,4 @@ const startHLS =  async (videoURL) =>{
     }
     return response.json()
 }
+module.exports = { startHLS }
