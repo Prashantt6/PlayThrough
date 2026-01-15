@@ -49,7 +49,11 @@ const generateHLS = async (videoURL) => {
   });
 
   // store process so we can stop it later
-  ffmpegProcesses.set(id, ffmpeg);
+  ffmpegProcesses.set(id, {
+    process: ffmpeg,
+    lastSeen: Date.now()
+  });
+
 
   ffmpeg.stderr.on("data", (chunk) => {
     console.log(`[FFmpeg ${id}]`, chunk.toString());
@@ -89,21 +93,34 @@ const generateHLS = async (videoURL) => {
 
 // stop ffmpeg when user closes tab
 const stopHLS = (id) => {
-  const ffmpeg = ffmpegProcesses.get(id);
+  const entry = ffmpegProcesses.get(id);
 
-  if (ffmpeg) {
-    ffmpeg.kill("SIGKILL");
+  if (entry) {
+    entry.process.kill("SIGKILL");
     ffmpegProcesses.delete(id);
   }
 
-  // optional: clean up files
   const dir = path.join(__dirname, "..", "hls", id);
   if (fs.existsSync(dir)) {
     fs.rmSync(dir, { recursive: true, force: true });
   }
 };
+setInterval(() => {
+  const now = Date.now();
+
+  for (const [id, entry] of ffmpegProcesses.entries()) {
+    if (now - entry.lastSeen > 2 * 60 * 1000) { 
+      console.log("💀 Killing abandoned stream:", id);
+      stopHLS(id);
+    }
+  }
+}, 30 * 1000); 
+
+
+
 
 module.exports = {
   generateHLS,
   stopHLS,
+  ffmpegProcesses
 };
