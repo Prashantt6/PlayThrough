@@ -2,6 +2,9 @@ const { spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
+// store running ffmpeg processes
+const ffmpegProcesses = new Map();
+
 const generateHLS = async (videoURL) => {
   const id = Date.now().toString();
   const outputDir = path.join(__dirname, "..", "hls", id);
@@ -9,50 +12,69 @@ const generateHLS = async (videoURL) => {
   fs.mkdirSync(outputDir, { recursive: true });
 
   const playlistPath = path.join(outputDir, "index.m3u8");
+  const firstSegmentPath = path.join(outputDir, "index0.ts");
 
   const ffmpegArgs = [
-  
+    // help ffmpeg analyze partial / remote streams
     "-analyzeduration", "20000000",
     "-probesize", "20000000",
 
+    // input
     "-i", videoURL,
 
+    // map first video + audio stream
     "-map", "0:v:0",
     "-map", "0:a:0",
 
+    // codecs
     "-c:v", "libx264",
     "-c:a", "aac",
 
+    // encoding speed / quality
     "-preset", "veryfast",
     "-crf", "23",
 
+    // HLS config
     "-hls_time", "6",
     "-hls_list_size", "0",
     "-hls_flags", "independent_segments",
 
+    // output
     "-f", "hls",
     playlistPath
   ];
 
-  const ffmpeg = spawn("ffmpeg", ffmpegArgs);
+  const ffmpeg = spawn("ffmpeg", ffmpegArgs, {
+    stdio: ["ignore", "ignore", "pipe"],
+  });
+
+  // store process so we can stop it later
+  ffmpegProcesses.set(id, ffmpeg);
 
   ffmpeg.stderr.on("data", (chunk) => {
-    console.log("[FFmpeg]", chunk.toString());
+    console.log(`[FFmpeg ${id}]`, chunk.toString());
   });
 
   ffmpeg.on("error", (err) => {
     console.error("FFmpeg spawn error:", err);
   });
 
+  // wait until playlist + first segment exist
   await new Promise((resolve, reject) => {
-    const check = setInterval(() => {
-      if (fs.existsSync(playlistPath)) {
-        clearInterval(check);
+    const interval = setInterval(() => {
+      if (
+        fs.existsSync(playlistPath) &&
+        fs.existsSync(firstSegmentPath)
+      ) {
+        clearInterval(interval);
         resolve();
       }
     }, 500);
 
     ffmpeg.on("close", (code) => {
+      clearInterval(interval);
+      ffmpegProcesses.delete(id);
+
       if (code !== 0) {
         reject(new Error("FFmpeg exited with error"));
       }
@@ -61,8 +83,27 @@ const generateHLS = async (videoURL) => {
 
   return {
     id,
-    playlistPath,
+    playlistUrl: `/hls/${id}/index.m3u8`,
   };
 };
 
-module.exports = { generateHLS };
+// stop ffmpeg when user closes tab
+const stopHLS = (id) => {
+  const ffmpeg = ffmpegProcesses.get(id);
+
+  if (ffmpeg) {
+    ffmpeg.kill("SIGKILL");
+    ffmpegProcesses.delete(id);
+  }
+
+  // optional: clean up files
+  const dir = path.join(__dirname, "..", "hls", id);
+  if (fs.existsSync(dir)) {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+};
+
+module.exports = {
+  generateHLS,
+  stopHLS,
+};
