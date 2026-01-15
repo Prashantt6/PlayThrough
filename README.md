@@ -58,10 +58,7 @@ Play_Through/
 │   │   └── index.css
 │   └── vite.config.js
 │
-├── docs/
-│   └── README.md
-│
-└── README.md (optional root summary)
+└── README.md
 ```
 ---
 
