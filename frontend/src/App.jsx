@@ -6,6 +6,7 @@ import { startHLS } from "./services/api";
 
 function App() {
   const [playlistURL, setPlaylistURL] = useState(null)
+  const [streamId, setStreamId] = useState(null)
   const [loading, setLoading] = useState(false)
 
   const handleStart = async(url) =>{
@@ -26,13 +27,14 @@ function App() {
   }
 
   return (
-    <div style={{ padding: "20px"}}>
-      <h2>PlayThrough</h2>
-
-      <StreamForm onStart={handleStart} />
-      {loading && <p>Preparing stream....</p>}
-      {/* console.log("REtur", playlistURL) */}
-      <VideoPlayer playlistURL={playlistURL} />
+    <div className="container">
+      <div className="card">
+        <div className="title">PlayThrough</div>
+        <StreamForm onStart={handleStart} />
+        {loading && <div className="status">Preparing to stream....</div>}
+        
+        <VideoPlayer playlistURL={playlistURL} />
+      </div>
     </div>
   )
 }
