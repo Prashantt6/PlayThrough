@@ -97,7 +97,7 @@ Play_Through/
 ```bash
 cd backend
 npm install
-npm start
+npm run dev
 ```
 Backend run on 
 ```bash
