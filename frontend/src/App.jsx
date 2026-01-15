@@ -44,14 +44,15 @@ useEffect(() => {
 
   return (
     <div className="container">
-      <div className="card">
-        <div className="title">PlayThrough</div>
-        <StreamForm onStart={handleStart} />
-        {loading && <div className="status">Preparing to stream....</div>}
-        
-        <VideoPlayer playlistURL={playlistURL} />
-      </div>
-    </div>
+  <div className="card">
+    <div className="title">PlayThrough</div>
+    <StreamForm onStart={handleStart} />
+    {loading && <div className="status">Preparing to stream....</div>}
+  </div>
+
+  <VideoPlayer playlistURL={playlistURL} />
+</div>
+
   )
 }
 

@@ -1,32 +1,51 @@
 import { useEffect, useRef } from "react";
-import Hls from "hls.js";
+import videojs from "video.js";
+import "video.js/dist/video-js.css";
+import "videojs-hls-quality-selector";
 
 export default function VideoPlayer({ playlistURL }) {
   const videoRef = useRef(null);
+  const playerRef = useRef(null);
 
   useEffect(() => {
     if (!playlistURL) return;
 
-    const video = videoRef.current;
-    const src = `http://localhost:3000${playlistURL}`;
+    if (!playerRef.current) {
+      playerRef.current = videojs(videoRef.current, {
+        controls: true,
+        autoplay: true,
+        preload: "auto",
+        fluid: true,
+        responsive: true,
+        
+      });
 
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(src);
-      hls.attachMedia(video);
-
-      return () => {
-        hls.destroy();
-      };
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = src;
+      playerRef.current.hlsQualitySelector({
+        displayCurrentQuality: true,
+      });
     }
+
+    playerRef.current.src({
+      src: playlistURL,
+      type: "application/x-mpegURL",
+    });
+
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.dispose();
+        playerRef.current = null;
+      }
+    };
   }, [playlistURL]);
 
+  if (!playlistURL) return null;
+
   return (
-    <div>
-      <h3>Now Playing</h3>
-      <video ref={videoRef} controls width="800" />
+    <div className="player-wrapper">
+      <video
+        ref={videoRef}
+        className="video-js vjs-big-play-centered"
+      />
     </div>
   );
 }
