@@ -27,14 +27,18 @@ const ffmpegArgs = [
   // input
   "-i", videoURL,
 
-  // video re-encode (MANDATORY)
-  "-map", "0:v:0",
-  "-c:v", "libx264",
-  "-profile:v", "main",
-  "-level", "4.0",
-  "-pix_fmt", "yuv420p",
-  "-preset", "veryfast",
-  "-crf", "23",
+ // video
+"-map", "0:v:0",
+"-c:v", "libx264",
+"-profile:v", "main",
+"-level", "4.0",
+"-pix_fmt", "yuv420p",
+
+//  THIS IS THE MISSING PIECE
+"-vf", "scale=iw:ih:force_original_aspect_ratio=decrease,setsar=1",
+
+"-preset", "veryfast",
+"-crf", "23",
 
   // audio re-encode (MANDATORY)
   "-map", "0:a:0",
