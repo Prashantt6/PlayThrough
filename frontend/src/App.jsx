@@ -15,7 +15,8 @@ function App() {
       setPlaylistURL(null)
       
       const data = await startHLS(url);
-      setPlaylistURL(data.playlistURL)
+      setPlaylistURL(data.playlistUrl)
+      // console.log("APP:",setPlaylistURL)
     }catch(err){
       alert("Failed to start streaming")
     }finally{
@@ -30,7 +31,7 @@ function App() {
 
       <StreamForm onStart={handleStart} />
       {loading && <p>Preparing stream....</p>}
-
+      {/* console.log("REtur", playlistURL) */}
       <VideoPlayer playlistURL={playlistURL} />
     </div>
   )

@@ -1,4 +1,5 @@
 export default function VideoPlayer({playlistURL}) {
+    console.log("Playlist link:", playlistURL)
     if(!playlistURL){
         return null
     }
