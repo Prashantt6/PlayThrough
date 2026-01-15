@@ -25,6 +25,19 @@ function App() {
     }
 
   }
+  useEffect(() =>{
+    const cleanup = () =>{
+      if(streamId){
+        stopHLS(streamId)
+      }
+    }
+    window.addEventListener("beforeunload", cleanup);
+
+    return () =>{
+      cleanup()
+      window.removeEventListener("beforeunload",cleanup)
+    }
+  },[streamId])
 
   return (
     <div className="container">
@@ -38,18 +51,6 @@ function App() {
     </div>
   )
 }
-useEffect(() =>{
-  const cleanup = () =>{
-    if(streamId){
-      stopHLS(streamId)
-    }
-  }
-  window.addEventListener("beforeunload", cleanup);
 
-  return () =>{
-    cleanup()
-    window.removeEventListener("beforeunload",cleanup)
-  }
-},[streamId])
 
 export default App;
